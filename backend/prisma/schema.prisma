@@ -1,0 +1,63 @@
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  fullName     String   @db.NVarChar(100)
+  username     String   @unique @db.NVarChar(50)
+  passwordHash String   @db.NVarChar(255)
+  role         String   @default("staff") @db.NVarChar(10)
+  createdAt    DateTime @default(now()) @db.DateTime2
+  updatedAt    DateTime @updatedAt @db.DateTime2
+
+  @@map("Users")
+}
+
+model Category {
+  id          Int        @id @default(autoincrement())
+  name        String     @unique @db.NVarChar(100)
+  description String?    @db.NVarChar(255)
+  createdAt   DateTime   @default(now()) @db.DateTime2
+  updatedAt   DateTime   @updatedAt @db.DateTime2
+  materials   Material[]
+
+  @@map("Categories")
+}
+
+model Supplier {
+  id        Int        @id @default(autoincrement())
+  name      String     @db.NVarChar(150)
+  phone     String?    @db.NVarChar(20)
+  email     String?    @db.NVarChar(100)
+  address   String?    @db.NVarChar(255)
+  createdAt DateTime   @default(now()) @db.DateTime2
+  updatedAt DateTime   @updatedAt @db.DateTime2
+  materials Material[]
+
+  @@map("Suppliers")
+}
+
+model Material {
+  id          Int      @id @default(autoincrement())
+  name        String   @db.NVarChar(150)
+  categoryId  Int
+  supplierId  Int
+  quantity    Int      @default(0)
+  unit        String   @db.NVarChar(50)
+  importPrice Decimal  @default(0) @db.Decimal(18, 2)
+  sellPrice   Decimal  @default(0) @db.Decimal(18, 2)
+  description String?  @db.NVarChar(500)
+  imageUrl    String?  @db.NVarChar(255)
+  createdAt   DateTime @default(now()) @db.DateTime2
+  updatedAt   DateTime @updatedAt @db.DateTime2
+  category    Category @relation(fields: [categoryId], references: [id])
+  supplier    Supplier @relation(fields: [supplierId], references: [id])
+
+  @@map("Materials")
+}
